@@ -15,7 +15,7 @@ namespace AdventOfCode2018
 		{
 			taskSolutionDictionry = new Dictionary<string, ISolution>
 			{
-				["1"] = new Solution1()
+				["1.1"] = new Solution1p1()
 			};
 			var helpWords = new string[] {"--help", "-h", "?", "\\?"};
 			if (args == null || args.Length <= 0 || args[0] == null || helpWords.Contains(args[0]))
