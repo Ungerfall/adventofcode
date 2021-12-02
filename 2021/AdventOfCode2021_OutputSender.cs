@@ -14,6 +14,7 @@ namespace _2021
         }
 
         [Function("AdventOfCode2021_OutputSender")]
+        [BlobOutput("samples-workitems/1.input")]
         public void Run([ServiceBusTrigger("myqueue", Connection = "")] string myQueueItem)
         {
             _logger.LogInformation($"C# ServiceBus queue trigger function processed message: {myQueueItem}");
