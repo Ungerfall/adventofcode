@@ -1,4 +1,4 @@
-using System;
+using _2021.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -14,10 +14,13 @@ namespace _2021
         }
 
         [Function("AdventOfCode2021_OutputSender")]
-        [BlobOutput("samples-workitems/1.input")]
-        public void Run([ServiceBusTrigger("myqueue", Connection = "")] string myQueueItem)
+        [BlobOutput("advent-of-code-2021/{Day}.output")]
+        public string Run(
+            [ServiceBusTrigger("sbq-adventofcode-output", Connection = "ServiceBusConnection")] AdventOfCodeOutput q)
         {
-            _logger.LogInformation($"C# ServiceBus queue trigger function processed message: {myQueueItem}");
+            _logger.LogInformation($"C# ServiceBus queue message: {new {q.Day, q.Solution}}");
+
+            return q.Solution;
         }
     }
 }
