@@ -52,7 +52,7 @@ public class AdventOfCode2021_Day2_Part2
         {
             Payload = new AdventOfCodeOutput
             {
-                Day = Days.Day2_Part1,
+                Day = Days.Day2_Part2,
                 Solution = (horizontal * depth).ToString(),
             }
         };
