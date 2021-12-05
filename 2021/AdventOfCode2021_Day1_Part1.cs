@@ -16,7 +16,7 @@ public class AdventOfCode2021_Day1_Part1
     }
 
     [Function("AdventOfCode2021_Day1_Part1")]
-    public QueueOutput Run([BlobTrigger("advent-of-code-2021/" + Days.Day1_Part1 + ".input")] string blob)
+    public QueueOutput Run([BlobTrigger("advent-of-code-2021/1.input")] string blob)
     {
         _logger.LogInformation("C# Blob trigger function Processed blob");
 
