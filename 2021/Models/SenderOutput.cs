@@ -8,5 +8,5 @@ public class SenderOutput
     public string Blob { get; set; }
 
     [SendGridOutput(ApiKey = "SendGridApiKey")]
-    public string EmailBody { get; set; }
+    public SendGridMessage EmailBody { get; set; }
 }
