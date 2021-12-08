@@ -10,4 +10,6 @@ public class Days
     public const string Day3_Part2 = "day3-part2";
     public const string Day4_Part1 = "day4-part1";
     public const string Day4_Part2 = "day4-part2";
+    public const string Day5_Part1 = "day5-part1";
+    public const string Day5_Part2 = "day5-part2";
 }
