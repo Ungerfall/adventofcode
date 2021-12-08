@@ -8,16 +8,16 @@ using System.Text.RegularExpressions;
 
 namespace _2021;
 
-public class AdventOfCode2021_Day5_Part1
+public class AdventOfCode2021_Day5_Part2
 {
     private readonly ILogger _logger;
 
-    public AdventOfCode2021_Day5_Part1(ILoggerFactory loggerFactory)
+    public AdventOfCode2021_Day5_Part2(ILoggerFactory loggerFactory)
     {
-        _logger = loggerFactory.CreateLogger<AdventOfCode2021_Day5_Part1>();
+        _logger = loggerFactory.CreateLogger<AdventOfCode2021_Day5_Part2>();
     }
 
-    [Function("AdventOfCode2021_Day5_Part1")]
+    [Function("AdventOfCode2021_Day5_Part2")]
     public QueueOutput Run([BlobTrigger("advent-of-code-2021/5.input")] string blob)
     {
         _logger.LogInformation("C# Blob trigger function Processed blob");
@@ -37,13 +37,10 @@ public class AdventOfCode2021_Day5_Part1
         {
             var dx = x1 == x2 ? 0 : x1 < x2 ? 1 : -1;
             var dy = y1 == y2 ? 0 : y1 < y2 ? 1 : -1;
-            var isLine = (x1 == x2) || (y1 == y2);
-            if (!isLine)
-                continue;
-
             var x = x1;
             var y = y1;
-            for (int i = 0; i <= Math.Abs(x1 - x2) + Math.Abs(y1 - y2); i++)
+
+            for (int i = 0; i <= Math.Max(Math.Abs(x1 - x2), Math.Abs(y1 - y2)); i++)
             {
                 var point = new Point(x, y);
                 density.TryGetValue(point, out int value);
@@ -61,7 +58,7 @@ public class AdventOfCode2021_Day5_Part1
         {
             Payload = new AdventOfCodeOutput
             {
-                Day = Days.Day5_Part1,
+                Day = Days.Day5_Part2,
                 Solution = solution.ToString(),
             }
         };
