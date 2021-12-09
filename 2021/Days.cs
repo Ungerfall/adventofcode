@@ -1,6 +1,6 @@
 ﻿namespace _2021;
 
-public class Days
+public static class Days
 {
     public const string Day1_Part1 = "day1-part1";
     public const string Day1_Part2 = "day1-part2";
@@ -12,4 +12,6 @@ public class Days
     public const string Day4_Part2 = "day4-part2";
     public const string Day5_Part1 = "day5-part1";
     public const string Day5_Part2 = "day5-part2";
+    public const string Day6_Part1 = "day6-part1";
+    public const string Day6_Part2 = "day6-part2";
 }
