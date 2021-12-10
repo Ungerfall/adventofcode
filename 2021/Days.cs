@@ -14,4 +14,6 @@ public static class Days
     public const string Day5_Part2 = "day5-part2";
     public const string Day6_Part1 = "day6-part1";
     public const string Day6_Part2 = "day6-part2";
+    public const string Day7_Part1 = "day7-part1";
+    public const string Day7_Part2 = "day7-part2";
 }
