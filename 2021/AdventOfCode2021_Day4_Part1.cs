@@ -39,7 +39,7 @@ public class AdventOfCode2021_Day4_Part1
             buffer.Add(input[i]);
         }
 
-        Board winner = null;
+        Board? winner = null;
         int winningNumber = 0;
         foreach (var n in seq)
         {

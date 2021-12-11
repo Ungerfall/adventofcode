@@ -5,5 +5,5 @@ namespace _2021.Models;
 public class QueueOutput
 {
     [ServiceBusOutput("sbq-adventofcode-output", Connection = "ServiceBusConnection")]
-    public AdventOfCodeOutput Payload { get; set; }
+    public AdventOfCodeOutput? Payload { get; init; }
 }
