@@ -14,18 +14,19 @@
 	 ┃ ┗ 📜day1.linq
 	 ┗ 📜input.linq
 */
-int year = ;
-int day = ;
+const int year = ;
+const int day = ;
+string[] input = GetInputLines(year, day);
 async Task part1()
 {
-	foreach (string line in await GetInputLines(year, day))
+	foreach (string line in input)
 	{
 
 	}
 }
 async Task part2()
 {
-	foreach (string line in await GetInputLines(year, day))
+	foreach (string line in input)
 	{
 
 	}
@@ -37,7 +38,7 @@ async Task Main()
 	await part2();
 }
 
-async Task<IEnumerable<string>> GetInputLines(int year, int day)
+static string[] GetInputLines(int year, int day)
 {
 	Debug.Assert(year <= DateTime.Now.Year);
 	Debug.Assert(day > 0 && day <= 25);
@@ -46,7 +47,7 @@ async Task<IEnumerable<string>> GetInputLines(int year, int day)
 	var input = Path.Combine(inputDir.FullName, $"{day}.txt");
 	if (File.Exists(input))
 	{
-		return File.ReadLines(input);
+		return File.ReadLines(input).ToArray();
 	}
 	else
 	{
@@ -55,12 +56,12 @@ async Task<IEnumerable<string>> GetInputLines(int year, int day)
 		string session = Util.GetPassword("adventofcode_session");
 		c.DefaultRequestHeaders.Add("cookie", "_ga=" + ga + "; session=" + session);
 		string uri = $"https://adventofcode.com/{year}/day/{day}/input";
-		var content = (await c.GetAsync(uri)).Content;
+		var content = c.GetAsync(uri).ConfigureAwait(false).GetAwaiter().GetResult().Content;
 		using (StreamWriter sw = new(input))
 		{
-			await content.CopyToAsync(sw.BaseStream);
+			content.CopyTo(sw.BaseStream, null, CancellationToken.None);
 		}
 
-		return File.ReadLines(input);
+		return File.ReadLines(input).ToArray();
 	}
 }
