@@ -51,6 +51,7 @@ static string[] GetInputLines(int year, int day)
 	}
 	else
 	{
+		"Loaded from internet.".Dump();
 		using System.Net.Http.HttpClient c = new();
 		string ga = Util.GetPassword("adventofcode_ga");
 		string session = Util.GetPassword("adventofcode_session");
