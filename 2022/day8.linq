@@ -84,9 +84,42 @@ async Task part1()
 }
 async Task part2()
 {
-	foreach (string line in input)
+	char[][] grid = input
+		.Select(x => x.Trim().ToCharArray())
+		.ToArray();
+	int xMax = grid.Length;
+	int yMax = grid[0].Length;
+	long best = 0;
+	for (int x = 1; x < xMax-1; x++)
 	{
-
+		for (int y = 1; y < yMax-1; y++)
+		{
+			best = Math.Max(best, checkSpot(x, y));
+		}
+	}
+	
+	best.Dump();
+	
+	int checkSpot(int x, int y)
+	{
+		int score = 1;
+		(int x, int y)[] dirs = new[] { (0,-1), (0,1), (-1,0), (1,0) };
+		foreach (var dir in dirs)
+		{
+			int xx = x;
+			int yy = y;
+			int scoreDir = 0; 
+			int highest = grid[x][y];
+			do {
+				xx = xx + dir.x;
+				yy = yy + dir.y;
+				scoreDir++;
+			} while (grid[xx][yy] < highest && xx > 0 && xx < xMax-1 && yy > 0 && yy < yMax-1);
+			
+			score *= scoreDir;
+		}
+		
+		return score;
 	}
 }
 
