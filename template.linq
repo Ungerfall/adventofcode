@@ -17,6 +17,7 @@
 const int year = ;
 const int day = ;
 string[] input = GetInputLines(year, day);
+string[] sample = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(Util.CurrentQueryPath), "input", $"{day}.sample.txt"));
 async Task part1()
 {
 	foreach (string line in input)
