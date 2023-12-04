@@ -17,15 +17,16 @@
 const int year = ;
 const int day = ;
 string[] input = GetInputLines(year, day);
-string[] sample = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(Util.CurrentQueryPath), "input", $"{day}.sample.txt"));
-async Task part1()
+// uncomment to debug sample. Copy and save sample to /year/input/day.sample.txt
+//string[] input = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(Util.CurrentQueryPath), "input", $"{day}.sample.txt"));
+void part1()
 {
 	foreach (string line in input)
 	{
 
 	}
 }
-async Task part2()
+void part2()
 {
 	foreach (string line in input)
 	{
@@ -33,10 +34,10 @@ async Task part2()
 	}
 }
 
-async Task Main()
+void Main()
 {
-	await part1();
-	await part2();
+	part1();
+	part2();
 }
 
 static string[] GetInputLines(int year, int day)
