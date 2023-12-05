@@ -12,7 +12,7 @@
 	 ┃ ┣ 📂input
 	 ┃ ┃ ┗ 📜1.txt
 	 ┃ ┗ 📜day1.linq
-	 ┗ 📜input.linq
+	 ┗ 📜template.linq
 */
 const int year = ;
 const int day = ;
