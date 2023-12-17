@@ -16,9 +16,9 @@
 */
 const int year = ;
 const int day = ;
-string[] input = GetInputLines(year, day);
+static string[] input = GetInputLines(year, day);
 // uncomment to debug sample. Copy and save sample to /year/input/day.sample.txt
-//string[] input = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(Util.CurrentQueryPath), "input", $"{day}.sample.txt"));
+//static string[] input = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(Util.CurrentQueryPath), "input", $"{day}.sample.txt"));
 void part1()
 {
 	foreach (string line in input)
