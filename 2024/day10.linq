@@ -38,7 +38,7 @@ void part1()
 	score.Dump("Scores of all trailheads");
 }
 
-static long traverse(int rowStart, int colStart)
+static int traverse(int rowStart, int colStart, bool countDistinct = false)
 {
 	Queue<(int row, int col)> bfs = new();
 	bfs.Enqueue((rowStart, colStart));
@@ -51,6 +51,7 @@ static long traverse(int rowStart, int colStart)
 		(0, 1)
 	};
 	HashSet<(int row, int col)> summits = new();
+	int distinctTrails = 0;
 	while (bfs.Count > 0)
 	{
 		var (row, col) = bfs.Dequeue();
@@ -58,6 +59,7 @@ static long traverse(int rowStart, int colStart)
 		if (h == 9)
 		{
 			summits.Add((row, col));
+			distinctTrails++;
 			continue;
 		}
 
@@ -76,15 +78,23 @@ static long traverse(int rowStart, int colStart)
 		}
 	}
 
-	return summits.Count;
+	return countDistinct ? distinctTrails : summits.Count;
 }
 
 void part2()
 {
-	foreach (string line in input)
+	long score = 0L;
+	for (int row = 0; row < Rows; row++)
 	{
-
+		for (int col = 0; col < Cols; col++)
+		{
+			if (input[row][col] == '0')
+			{
+				score += traverse(row, col, countDistinct: true);
+			}
+		}
 	}
+	score.Dump("Scores of all trailheads");
 }
 
 void Main()
