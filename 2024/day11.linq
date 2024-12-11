@@ -64,10 +64,81 @@ void part1()
 
 void part2()
 {
-	foreach (string line in input)
+	long[] numbers = input[0].Split().Select(long.Parse).ToArray();
+	Dictionary<long, long> stones = new();
+	for (int i = 0; i < numbers.Length; i++)
 	{
-
+		add(stones, numbers[i], 1);
 	}
+
+	const int blinks = 75;
+	for (int blink = 0; blink < blinks; blink++)
+	{
+		Dictionary<long, long> diff = new();
+		foreach (var (stone, count) in stones)
+		{
+			if (stone == 0)
+			{
+				add(diff, key: 1, count);
+				add(diff, key: 0, -1 * count);
+			}
+			else if (stone.ToString() is string stoneString && stoneString.Length % 2 == 0)
+			{
+				int mid = stoneString.Length / 2;
+				int left = int.Parse(stoneString[..mid]);
+				int right = int.Parse(stoneString[mid..]);
+				add(diff, stone, -1 * count);
+				add(diff, left, count);
+				add(diff, right, count);
+			}
+			else
+			{
+				checked
+				{
+					long @new = stone * 2024;
+					add(diff, stone, -1 * count);
+					add(diff, @new, count);
+				}
+			}
+		}
+
+		foreach (var (stone, updateCount) in diff)
+		{
+			if (stones.TryGetValue(stone, out long count))
+			{
+				stones[stone] = count + updateCount;
+			}
+			else
+			{
+				stones[stone] = updateCount;
+			}
+		}
+	}
+
+	long stonesCount = 0L;
+	foreach (var (_, count) in stones)
+	{
+		checked
+		{
+			stonesCount += count;
+		}
+	}
+
+	stonesCount.Dump("Stones count");
+}
+
+Dictionary<long, long> add(Dictionary<long, long> counter, long key, long value)
+{
+	if (counter.TryGetValue(key, out long count))
+	{
+		counter[key] = count + value;
+	}
+	else
+	{
+		counter[key] = value;
+	}
+
+	return counter;
 }
 
 void Main()
