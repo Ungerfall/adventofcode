@@ -59,22 +59,72 @@ void part2()
 			.Select(int.Parse)
 			.ToArray();
 
-		int left = 0;
-		int errors = 0;
-		// assume increasing
-		for (int right = 1; right < report.Length - 1; right++)
+		LinkedList<int> reportLinkedList = new(report);
+		LinkedListNode<int> node = reportLinkedList.First ?? throw new ArgumentNullException("first is null");
+		reportLinkedList.Remove(node);
+		bool safe = isIncOrDec(reportLinkedList);
+		reportLinkedList.AddFirst(node);
+		LinkedListNode<int>? iterNode = reportLinkedList.First;
+		while (iterNode != null && !safe)
 		{
-			while (right < report.Length && report[left] == 1)
+			LinkedListNode<int>? toDelete = iterNode.Next;
+			if (toDelete is not null)
 			{
-
+				reportLinkedList.Remove(toDelete);
+				safe = isIncOrDec(reportLinkedList);
+				reportLinkedList.AddAfter(iterNode, toDelete);
 			}
+
+			iterNode = iterNode.Next;
 		}
 
-		bool safe = true;
 		count += safe ? 1 : 0;
 	}
 
 	count.Dump("Safe reports count");
+}
+
+static bool isIncOrDec(LinkedList<int> report)
+{
+	bool safe = true;
+	LinkedListNode<int>? prev = report.First;
+	LinkedListNode<int>? current = prev?.Next;
+	// increasing
+	while (current != null && prev != null)
+	{
+		int diff = current.Value - prev.Value;
+		if (diff < 1 || diff > 3)
+		{
+			safe = false;
+			break;
+		}
+
+		prev = current;
+		current = current.Next;
+	}
+
+	if (safe)
+	{
+		return true;
+	}
+
+	safe = true;
+	prev = report.First;
+	current = prev?.Next;
+	// decreasing
+	while (current != null && prev != null)
+	{
+		int diff = prev.Value - current.Value;
+		if (diff > 3 || diff < 1)
+		{
+			return false;
+		}
+
+		prev = current;
+		current = current.Next;
+	}
+
+	return safe;
 }
 
 void Main()
