@@ -20,22 +20,22 @@ static string[] input = GetInputLines(year, day);
 // uncomment to debug sample. Copy and save sample to /year/input/day.sample.txt
 //static string[] input = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(Util.CurrentQueryPath), "input", $"{day}.sample.txt"));
 
-record Point (long X, long Y);
+record Point(long X, long Y);
 
 const int COST_A = 3;
 const int COST_B = 1;
 void part1()
 {
 	long sum = 0L;
-	for (int i = 0; i < input.Length; i+=4)
+	for (int i = 0; i < input.Length; i += 4)
 	{
 		Match button_a_matches = (new Regex(@"Button A: X\+(\d+), Y\+(\d+)")).Match(input[i]);
-		Match button_b_matches = (new Regex(@"Button B: X\+(\d+), Y\+(\d+)")).Match(input[i+1]);
-		Match prize_matches = (new Regex(@"Prize: X=(\d+), Y=(\d+)")).Match(input[i+2]);
+		Match button_b_matches = (new Regex(@"Button B: X\+(\d+), Y\+(\d+)")).Match(input[i + 1]);
+		Match prize_matches = (new Regex(@"Prize: X=(\d+), Y=(\d+)")).Match(input[i + 2]);
 		Point button_a_d = new Point(int.Parse(button_a_matches.Groups[1].Value), int.Parse(button_a_matches.Groups[2].Value));
 		Point button_b_d = new Point(int.Parse(button_b_matches.Groups[1].Value), int.Parse(button_b_matches.Groups[2].Value));
 		Point prize = new Point(int.Parse(prize_matches.Groups[1].Value), int.Parse(prize_matches.Groups[2].Value));
-		
+
 		Dictionary<Point, long> memo = new();
 		long min = minPresses(prize, new Point(0, 0), 0L, button_a_d, button_b_d, memo);
 		if (min != long.MaxValue)
@@ -43,7 +43,7 @@ void part1()
 			sum += min;
 		}
 	}
-	
+
 	sum.Dump("Max possible points");
 }
 
@@ -53,12 +53,12 @@ long minPresses(Point prize, Point current, long score, Point btn_a_d, Point btn
 	{
 		return long.MaxValue;
 	}
-	
+
 	if (current.X == prize.X && current.Y == prize.Y)
 	{
 		return score;
 	}
-	
+
 	if (memo.TryGetValue(current, out long minScore))
 	{
 		return minScore;
@@ -69,33 +69,46 @@ long minPresses(Point prize, Point current, long score, Point btn_a_d, Point btn
 		minPresses(prize, current with { X = current.X + btn_b_d.X, Y = current.Y + btn_b_d.Y }, score + COST_B, btn_a_d, btn_b_d, memo)
 	);
 	memo[current] = min;
-	
+
 	return min;
 }
 
 void part2()
 {
+	const long extension = 10000000000000L;
 	long sum = 0L;
-	for (int i = 0; i < input.Length; i+=4)
+	for (int i = 0; i < input.Length; i += 4)
 	{
 		Match button_a_matches = (new Regex(@"Button A: X\+(\d+), Y\+(\d+)")).Match(input[i]);
-		Match button_b_matches = (new Regex(@"Button B: X\+(\d+), Y\+(\d+)")).Match(input[i+1]);
-		Match prize_matches = (new Regex(@"Prize: X=(\d+), Y=(\d+)")).Match(input[i+2]);
+		Match button_b_matches = (new Regex(@"Button B: X\+(\d+), Y\+(\d+)")).Match(input[i + 1]);
+		Match prize_matches = (new Regex(@"Prize: X=(\d+), Y=(\d+)")).Match(input[i + 2]);
 		Point button_a_d = new Point(int.Parse(button_a_matches.Groups[1].Value), int.Parse(button_a_matches.Groups[2].Value));
 		Point button_b_d = new Point(int.Parse(button_b_matches.Groups[1].Value), int.Parse(button_b_matches.Groups[2].Value));
 		Point prize = new Point(
-			int.Parse(prize_matches.Groups[1].Value) + 10000000000000L,
-			int.Parse(prize_matches.Groups[2].Value) + 10000000000000L);
-		
-		Dictionary<Point, long> memo = new();
-		long min = minPresses(prize, new Point(0, 0), 0L, button_a_d, button_b_d, memo);
-		if (min != long.MaxValue)
+			int.Parse(prize_matches.Groups[1].Value) + extension,
+			int.Parse(prize_matches.Groups[2].Value) + extension);
+
+		// number-of-A-clicks * A-click-d.X + number-of-B-clicks * B-click-d.X = prize.X
+		// number-of-A-clicks * A-click-d.Y + number-of-B-clicks * B-click-d.Y = prize.Y
+		double a_clicks = (double)((long)button_b_d.Y * prize.X - (long)button_b_d.X * prize.Y)
+			/ ((long)button_a_d.X * button_b_d.Y - (long)button_b_d.X * button_a_d.Y);
+		double b_clicks = (double)((long)button_a_d.X * prize.Y - (long)button_a_d.Y * prize.X)
+			/ ((long)button_a_d.X * button_b_d.Y - (long)button_b_d.X * button_a_d.Y);
+		if (isInt(a_clicks) && isInt(b_clicks))
 		{
-			sum += min;
+			checked
+			{
+				sum += COST_A * (long)a_clicks + COST_B * (long)b_clicks;
+			}
 		}
 	}
-	
+
 	sum.Dump("Max possible points");
+}
+
+bool isInt(double candidate)
+{
+	return Math.Abs(candidate % 1) <= (Double.Epsilon * 100);
 }
 
 void Main()
