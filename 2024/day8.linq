@@ -19,6 +19,7 @@ const int day = 8;
 static string[] input = GetInputLines(year, day);
 // uncomment to debug sample. Copy and save sample to /year/input/day.sample.txt
 //static string[] input = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(Util.CurrentQueryPath), "input", $"{day}.sample.txt"));
+
 static int Rows = input.Length;
 static int Cols = input[0].Length;
 record Point(int Row, int Col);
@@ -75,9 +76,68 @@ void part1()
 }
 void part2()
 {
-	foreach (string line in input)
+	Dictionary<char, HashSet<Point>> antennas = new();
+	for (int row = 0; row < Rows; row++)
 	{
+		for (int col = 0; col < Cols; col++)
+		{
+			if (input[row][col] == '.')
+			{
+				continue;
+			};
 
+			char frequency = input[row][col];
+			if (!antennas.ContainsKey(frequency))
+			{
+				antennas[frequency] = new HashSet<Point>();
+			}
+
+			antennas[frequency].Add(new Point(row, col));
+		}
+	}
+
+	HashSet<Point> antinodes = new();
+	foreach (Point[] antenna in antennas.Values.Select(x => x.ToArray()))
+	{
+		for (int i = 0; i < antenna.Length; i++)
+		{
+			for (int j = 0; j < antenna.Length; j++)
+			{
+				if (i == j)
+					continue;
+
+				int multiplier = 0;
+				int antinodeRow = antenna[i].Row - multiplier * (antenna[j].Row - antenna[i].Row);
+				int antinodeCol = antenna[i].Col - multiplier * (antenna[j].Col - antenna[i].Col);
+				while (antinodeRow >= 0 && antinodeRow < Rows && antinodeCol >= 0 && antinodeCol < Cols)
+				{
+					antinodes.Add(new Point(antinodeRow, antinodeCol));
+					multiplier++;
+					antinodeRow = antenna[i].Row - multiplier * (antenna[j].Row - antenna[i].Row);
+					antinodeCol = antenna[i].Col - multiplier * (antenna[j].Col - antenna[i].Col);
+				}
+			}
+		}
+	}
+
+	antinodes.Count.Dump("Antinode locations count");
+	PrintMap(antinodes);
+}
+
+void PrintMap(HashSet<Point> antinodes)
+{
+	for (int row = 0; row < Rows; row++)
+	{
+		char[] mut = input[row].ToCharArray();
+		for (int col = 0; col < Cols; col++)
+		{
+			if (mut[col] == '.' && antinodes.Contains(new Point(row, col)))
+			{
+				mut[col] = '#';
+			}
+		}
+
+		(new string(mut)).Dump();
 	}
 }
 
