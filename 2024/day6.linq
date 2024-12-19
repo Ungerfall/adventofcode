@@ -16,9 +16,10 @@
 */
 const int year = 2024;
 const int day = 6;
-//static string[] input = GetInputLines(year, day);
+static string[] input = GetInputLines(year, day);
 // uncomment to debug sample. Copy and save sample to /year/input/day.sample.txt
-static string[] input = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(Util.CurrentQueryPath), "input", $"{day}.sample.txt"));
+//static string[] input = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(Util.CurrentQueryPath), "input", $"{day}.sample.txt"));
+//static string[] input = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(Util.CurrentQueryPath), "input", $"{day}.sample-1.txt"));
 
 static int Rows => input.Length;
 static int Cols => input[0].Length;
@@ -48,7 +49,9 @@ void part1()
 	Debug.Assert(start is not null);
 	Point pos = start with { };
 	HashSet<Point> visited = new();
+	HashSet<(Point, Direction)> path = new();
 	visited.Add(pos);
+	path.Add((pos, dir));
 	while (true)
 	{
 		Point next = new Point(pos.Row + dir.dRow, pos.Col + dir.dCol);
@@ -64,14 +67,16 @@ void part1()
 
 		pos = new Point(pos.Row + dir.dRow, pos.Col + dir.dCol);
 		visited.Add(pos);
+		path.Add((pos, dir));
 	}
 
 	visited.Count.Dump("Visited positions count");
+	//PrintMap(path, start);
 }
 void part2()
 {
 	Point? start = null;
-	Direction dir = new(-1, 0); // North 
+	Direction north = new(-1, 0); // North 
 	for (int row = 0; row < Rows; row++)
 	{
 		for (int col = 0; col < Cols; col++)
@@ -84,12 +89,14 @@ void part2()
 	}
 
 	Debug.Assert(start is not null);
-	Point pos = start with { };
 	HashSet<(Point, Direction)> visited = new();
 	HashSet<Point> loops = new();
-	visited.Add((pos, dir));
-	while (true)
+	Queue<(Point, Direction)> bfs = new();
+	bfs.Enqueue((start, north));
+	while (bfs.Count > 0)
 	{
+		var (pos, dir) = bfs.Dequeue();
+		visited.Add((pos, dir));
 		Point next = new Point(pos.Row + dir.dRow, pos.Col + dir.dCol);
 		if (!(next.Row >= 0 && next.Row < Rows && next.Col >= 0 && next.Col < Cols))
 		{
@@ -99,62 +106,134 @@ void part2()
 		if (input[next.Row][next.Col] == OBSTACLE)
 		{
 			dir = dir.Next();
+			next = pos;
 		}
-		else // assume rotate
+		else
 		{
-			Direction nextDir = dir.Next();
-			HashSet<(Point, Direction)> visitedCopy = new HashSet<(Point, Direction)>(visited);
-			if (SearchLoops(pos, nextDir, visitedCopy, loops))
-			{
-				loops.Add(next);
-			}
+			var searchLoopDir = dir.Next();
+			var searchLoopVisited = new HashSet<(Point, Direction)>(visited);
+			SearchLoops(pos, searchLoopDir, searchLoopVisited, loops, start, next);
 		}
 
-		pos = new Point(pos.Row + dir.dRow, pos.Col + dir.dCol);
-		visited.Add((pos, dir));
+		bfs.Enqueue((next, dir));
+	}
+
+	visited.Select(x => x.Item1).ToHashSet().Count.Dump("Visited position count Part 1");
+	loops.Count.Dump("Possible loops count");
+	//PrintMap(visited, start);
+}
+
+void part2_bruteforce()
+{
+	Point? start = null;
+	Direction north = new(-1, 0); // North 
+	for (int row = 0; row < Rows; row++)
+	{
+		for (int col = 0; col < Cols; col++)
+		{
+			if (input[row][col] == GUARD)
+			{
+				start = new Point(row, col);
+			}
+		}
+	}
+
+	Debug.Assert(start is not null);
+	HashSet<Point> loops = new();
+	for (int row = 0; row < Rows; row++)
+	{
+		for (int col = 0; col < Cols; col++)
+		{
+			HashSet<(Point, Direction)> visited = new();
+			SearchLoops(start, north, visited, loops, start, new Point(row, col));
+		}
 	}
 
 	loops.Count.Dump("Possible loops count");
-	PrintMap(loops);
+	//PrintMap(visited, start);
 }
 
-bool SearchLoops(Point initial, Direction dir, HashSet<(Point p, Direction dir)> visited, HashSet<Point> loops)
+void SearchLoops(Point initial, Direction initialDir, HashSet<(Point p, Direction dir)> visited, HashSet<Point> loops, Point start, Point obstruction)
 {
-	Point pos = initial with { };
-	while (true)
+	Queue<(Point, Direction)> bfs = new();
+	bfs.Enqueue((initial, initialDir));
+	bool foundLoop = false;
+	while (bfs.Count > 0)
 	{
-		Point next = new Point(initial.Row + dir.dRow, initial.Col + dir.dCol);
+		var (pos, dir) = bfs.Dequeue();
+		if (visited.Contains((pos, dir)))
+		{
+			// found a loop
+			loops.Add(obstruction);
+			foundLoop = true;
+			break;
+		}
+
+		visited.Add((pos, dir));
+
+		Point next = new Point(pos.Row + dir.dRow, pos.Col + dir.dCol);
 		if (!(next.Row >= 0 && next.Row < Rows && next.Col >= 0 && next.Col < Cols))
 		{
 			break;
 		}
-		
-		if (visited.Contains((next, dir)))
-		{
-			return true;
-		}
-		
-		if (input[next.Row][next.Col] == OBSTACLE)
+
+		if (input[next.Row][next.Col] == OBSTACLE || next == obstruction)
 		{
 			dir = dir.Next();
+			next = pos;
 		}
-		
-		visited.Add((next, dir));
+
+		bfs.Enqueue((next, dir));
 	}
-	
-	return false;
+
+	if (foundLoop || obstruction is { Row: 8, Col: 1 })
+	{
+		//PrintMap(visited, start, obstruction);
+	}
 }
 
-void PrintMap(HashSet<Point> loops)
+void PrintMap(HashSet<(Point, Direction)> path, Point start, Point? obstruction = null)
 {
+	Dictionary<Point, HashSet<Direction>> p = new();
+	foreach (var (pos, dir) in path)
+	{
+		if (p.TryGetValue(pos, out var dirs))
+		{
+			dirs.Add(dir);
+		}
+		else
+		{
+			p[pos] = new HashSet<Direction>();
+			p[pos].Add(dir);
+		}
+	}
+
+	start.Dump("Map");
 	for (int row = 0; row < Rows; row++)
 	{
 		char[] mut = input[row].ToCharArray();
 		for (int col = 0; col < Cols; col++)
 		{
-			if (loops.Contains(new Point(row, col)))
+			Point pos = new(row, col);
+			if (obstruction is not null && obstruction == pos)
 			{
 				mut[col] = 'O';
+			}
+			else if (pos == start)
+			{
+				mut[col] = '^';
+			}
+			else if (p.TryGetValue(new Point(row, col), out HashSet<Direction>? dirs))
+			{
+				mut[col] = dirs.ToList() switch
+				{
+					{ Count: > 1 and <= 4 } => '*',
+					[{ dRow: -1, dCol: 0 }] => '↑',
+					[{ dRow: 1, dCol: 0 }] => '↓',
+					[{ dRow: 0, dCol: -1 }] => '←',
+					[{ dRow: 0, dCol: 1 }] => '→',
+					_ => throw new InvalidOperationException("wtf was that"),
+				};
 			}
 		}
 
@@ -166,6 +245,7 @@ void Main()
 {
 	part1();
 	part2();
+	part2_bruteforce();
 }
 
 static string[] GetInputLines(int year, int day)
