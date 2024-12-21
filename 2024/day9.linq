@@ -80,10 +80,68 @@ long sum(int n, int a_1, int a_n)
 
 void part2()
 {
-	foreach (string line in input)
+	int[] dest = new int[input[0].Length * 10];
+	int[] diskMap = new int[input[0].Length];
+	long[] space_starts = new long[input[0].Length];
+	long prefix = 0L;
+	for (int i = 0; i < input[0].Length; i++)
 	{
-
+		diskMap[i] = (int)char.GetNumericValue(input[0][i]);
+		space_starts[i] = prefix;
+		prefix += diskMap[i];
 	}
+
+	for (int i = diskMap.Length - 1; i >= 0; i--)
+	{
+		if (i % 2 == 0)
+		{
+			int id = i / 2;
+			int file = diskMap[i];
+			bool moved = false;
+			for (int j = 0; j < i; j++)
+			{
+				if (j % 2 == 0)
+				{
+					continue;
+				}
+
+				ref int space = ref diskMap[j];
+				if (space < file)
+				{
+					continue;
+				}
+
+				ref long dest_index = ref space_starts[j];
+				for (int k = 0; k < file; k++, dest_index++)
+				{
+					dest[dest_index] = id;
+				}
+
+				space -= file;
+				moved = true;
+				break;
+			}
+
+			if (!moved)
+			{
+				long dest_index = space_starts[i];
+				for (int j = 0; j < file; j++, dest_index++)
+				{
+					dest[dest_index] = id;
+				}
+			}
+		}
+	}
+
+	//string.Join(',', dest).Dump();
+
+	long checksum = 0L;
+	for (int i = 0; i < dest.Length; i++)
+	{
+		checksum += dest[i] * i;
+	}
+
+	checksum.Dump("Checksum");
 }
 
 void Main()
