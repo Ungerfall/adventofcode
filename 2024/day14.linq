@@ -1,5 +1,6 @@
 <Query Kind="Program">
   <Namespace>System.Threading.Tasks</Namespace>
+  <Namespace>System.Collections.Immutable</Namespace>
 </Query>
 
 /*
@@ -75,37 +76,39 @@ void part1()
 }
 void part2()
 {
-	List<RobotPosition> robots = new();
-	foreach (string line in input)
-	{
-		Match match = new Regex(@"p=(\d+),(\d+) v=(-?\d+),(-?\d+)").Match(line);
-		robots.Add(new RobotPosition(
-			Id: line.Trim(),
-			Row: int.Parse(match.Groups[2].Value),
-			Col: int.Parse(match.Groups[1].Value),
-			VelocityRow: int.Parse(match.Groups[4].Value),
-			VelocityCol: int.Parse(match.Groups[3].Value)));
-	}
-
+	var builder = ImmutableList.CreateBuilder<RobotPosition>();
+	builder.AddRange(
+		input.Select(line =>
+		{
+			Match match = new Regex(@"p=(\d+),(\d+) v=(-?\d+),(-?\d+)").Match(line);
+			return new RobotPosition(
+				Id: line.Trim(),
+				Row: int.Parse(match.Groups[2].Value),
+				Col: int.Parse(match.Groups[1].Value),
+				VelocityRow: int.Parse(match.Groups[4].Value),
+				VelocityCol: int.Parse(match.Groups[3].Value));
+		}));
+	ImmutableList<RobotPosition> robots = builder.ToImmutable();
 	int step = 1;
 	while (true)
 	{
-		if (longest_line(robots) >= 10)
+		List<RobotPosition> robots_after_steps = new();
+		foreach (var robot in robots)
 		{
-			Print(robots);
+			int rr = mod(robot.Row + step * robot.VelocityRow, Rows);
+			int cc = mod(robot.Col + step * robot.VelocityCol, Cols);
+			robots_after_steps.Add(robot with { Row = rr, Col = cc });
+		}
+
+		int longest = longest_line(robots_after_steps);
+		if (longest >= 10)
+		{
+			(step, longest).Dump("step");
+			Print(robots_after_steps);
 			if (Console.ReadLine() == "stop")
 			{
 				break;
 			}
-		}
-
-		Util.ClearResults();
-		for (int i = 0; i < robots.Count; i++)
-		{
-			RobotPosition robot = robots[i];
-			int rr = mod(robot.Row + step * robot.VelocityRow, Rows);
-			int cc = mod(robot.Col + step * robot.VelocityCol, Cols);
-			robots[i] = robot with { Row = rr, Col = cc };
 		}
 
 		step++;
@@ -114,7 +117,31 @@ void part2()
 
 int longest_line(List<RobotPosition> robots)
 {
-	f
+	bool[,] grid = new bool[Rows, Cols];
+	foreach (var robot in robots)
+	{
+		grid[robot.Row, robot.Col] = true;
+	}
+
+	int longest = 1;
+	for (int row = 0; row < Rows; row++)
+	{
+		int current = 1;
+		for (int col = 1; col < Cols; col++)
+		{
+			if (grid[row, col] && grid[row, col - 1])
+			{
+				current++;
+			}
+			else
+			{
+				longest = Math.Max(longest, current);
+				current = 1;
+			}
+		}
+	}
+
+	return longest;
 }
 
 int mod(int x, int m)
