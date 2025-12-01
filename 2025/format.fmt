@@ -1,0 +1,4 @@
+16.0
+2
+1 SQLCHAR 0 7 "\t"  1 LineNumber  ""
+2 SQLCHAR 0 8000  "\n"  2 Content SQL_Latin1_General_CP1_CI_AS
